@@ -5,6 +5,8 @@ A decentralized fantasy sports platform where users open randomized NFT player p
 
 ---
 
+https://github.com/mahir-pa/fun/releases/download/demovid/0921.mp4
+
 ## 🌍 Problem  
 
 Fantasy football platforms today are:  
@@ -153,7 +155,6 @@ The **engine** of the system — handles payments, randomization, and NFT mintin
 ---
 
 ## 📽 Demo Video (to be added)  
-
 [demovid](https://drive.google.com/file/d/1zqrkWmj_PibIq4e1iTgdvu7W5W32cL8c/view?usp=sharing)
 
 ---
