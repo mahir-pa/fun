@@ -142,17 +142,12 @@ The **engine** of the system — handles payments, randomization, and NFT mintin
 
 ## 📸 Screenshots  
 
-*(to be added from your PNG uploads)*  
+
 
 ---
 
 ## 📽 Demo Video (to be added)  
 
-Will show:  
-- Pack opening flow + popup  
-- NFT balance update  
-- Transfers market with FLR/FXRP toggle  
-- Technical explanation of contracts + repo  
 
 ---
 
