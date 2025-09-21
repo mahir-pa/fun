@@ -154,7 +154,7 @@ The **engine** of the system — handles payments, randomization, and NFT mintin
 
 ## 📽 Demo Video (to be added)  
 
-[demovid](https://youtu.be/qoSgcz_mR-g)
+[demovid](https://drive.google.com/file/d/1zqrkWmj_PibIq4e1iTgdvu7W5W32cL8c/view?usp=sharing)
 
 ---
 
