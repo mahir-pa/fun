@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Football.Fun — Squad (Wallet Connect)</title>
+<!-- Ethers v6 UMD (for MetaMask connect only) -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#fff; --muted:#b9c3d9; --bg:#0a0d17; --bg2:#0f1425;
+    --panel:rgba(255,255,255,.06); --panelBorder:rgba(255,255,255,.12);
+    --neon:#22c55e; --chip:#0e1428;
+    --gold1:#fde68a; --gold2:#f59e0b; --epic1:#c7d2fe; --epic2:#8b5cf6; --basic1:#ffffff; --basic2:#cbd5e1;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--ink);
+       font:500 16px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+       padding:18px 28px;border-bottom:1px solid rgba(255,255,255,.08);
+       background:linear-gradient(180deg,#0a0d17ee,#0a0d1700)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:38px;height:38px;border-radius:10px;background:#fff;color:#000;display:grid;place-items:center;font-weight:900}
+  .tabs a{color:#fff9;margin:0 10px;text-decoration:none;padding:8px 14px;border-radius:9999px}
+  .tabs a.active,.tabs a:hover{background:rgba(255,255,255,.1);color:#fff}
+  .walletBtn{display:inline-flex;align-items:center;gap:10px;border:none;background:#0d1428;border:1px solid #2a3550;
+             color:#e6ecff;padding:9px 14px;border-radius:9999px;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+  .walletBtn.connected{background:#0f1b38;border-color:#3a4b7a}
+
+  /* LAYOUT */
+  .wrap{max-width:1280px;margin:0 auto;padding:26px}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:20px}
+  @media(max-width:1100px){ .grid{grid-template-columns:1fr} }
+
+  /* PANELS */
+  .panel{background:var(--panel);border:1px solid var(--panelBorder);border-radius:22px}
+
+  /* SHELF */
+  .shelf{padding:22px 18px}
+  .shelf h3{margin:0 0 8px}
+  .shelf .hint{color:var(--muted);font-size:13px;margin:0 0 14px}
+  .cards{display:flex;gap:12px;flex-wrap:wrap}
+  .shelf.locked .cards{filter:blur(2px);pointer-events:none}
+  .shelf.locked .lockMsg{display:flex}
+  .lockMsg{display:none;align-items:center;gap:10px;margin-top:6px;color:#c8d2ea;font-size:13px}
+
+  /* CARD (110x150) */
+  .card{width:110px;height:150px;border-radius:16px;position:relative;display:flex;flex-direction:column;
+        justify-content:flex-end;padding:10px;cursor:grab;user-select:none;
+        box-shadow:0 8px 26px rgba(0,0,0,.32), inset 0 0 0 1px rgba(0,0,0,.35)}
+  .card.dragging{opacity:.85;transform:scale(.98)}
+  .ovr{position:absolute;top:8px;left:10px;font-weight:1000;font-size:26px;text-shadow:0 2px 6px #0009}
+  .pos{position:absolute;top:8px;right:8px;font-size:11px;background:rgba(0,0,0,.5);padding:3px 6px;border-radius:9999px}
+  .name{font-weight:1000;font-size:13px;line-height:1.05}
+  .rar{font-size:11px;color:#000;background:rgba(255,255,255,.88);padding:2px 7px;border-radius:9999px;align-self:flex-start}
+  .face{position:absolute;inset:0;display:grid;place-items:center;color:#000;font-weight:900;opacity:.85;mix-blend:multiply}
+  .legendary{background:linear-gradient(180deg,var(--gold1),var(--gold2));box-shadow:0 0 0 2px #fbbf24 inset, 0 0 18px #f59e0b66}
+  .epic{background:linear-gradient(180deg,var(--epic1),var(--epic2));box-shadow:0 0 0 2px #a78bfa inset, 0 0 18px #8b5cf64d}
+  .basic{background:linear-gradient(180deg,var(--basic1),var(--basic2));box-shadow:0 0 0 2px #e5e7eb inset}
+
+  /* FIELD */
+  .fieldWrap{position:relative;padding:16px}
+  .field{position:relative;border:1px solid var(--panelBorder);border-radius:22px;min-height:620px;overflow:hidden;
+         background:radial-gradient(ellipse at 50% -10%, #1b2240, #0a0d17 60%),
+         url('data:image/svg+xml;utf8,\
+          <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">\
+            <rect width="1200" height="680" fill="none"/>\
+            <g stroke=\"%23ffffff18\" stroke-width=\"2\">\
+              <line x1=\"0\" y1=\"70\" x2=\"1200\" y2=\"70\"/>\
+              <line x1=\"0\" y1=\"140\" x2=\"1200\" y2=\"140\"/>\
+              <line x1=\"0\" y1=\"210\" x2=\"1200\" y2=\"210\"/>\
+              <line x1=\"0\" y1=\"280\" x2=\"1200\" y2=\"280\"/>\
+              <line x1=\"0\" y1=\"350\" x2=\"1200\" y2=\"350\"/>\
+              <line x1=\"0\" y1=\"420\" x2=\"1200\" y2=\"420\"/>\
+              <line x1=\"0\" y1=\"490\" x2=\"1200\" y2=\"490\"/>\
+              <line x1=\"0\" y1=\"560\" x2=\"1200\" y2=\"560\"/>\
+              <line x1=\"0\" y1=\"630\" x2=\"1200\" y2=\"630\"/>\
+            </g>\
+          </svg>') center/cover no-repeat}
+  .headerChips{position:absolute;top:14px;left:16px;display:flex;gap:10px;align-items:center;z-index:3}
+  .chip{background:#0e1428;border:1px solid rgba(255,255,255,.2);border-radius:9999px;padding:7px 11px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .saveBtn{position:absolute;top:14px;right:14px;background:#fff;color:#000;border:none;border-radius:9999px;padding:9px 14px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:3}
+  .teamName{font-weight:1000;letter-spacing:.25em;opacity:.14;font-size:56px;position:absolute;top:18px;right:18px;z-index:1}
+
+  svg.links{position:absolute;inset:0;pointer-events:none;z-index:0}
+  .link{stroke:var(--neon);stroke-width:2.25;stroke-linecap:round;stroke-opacity:.8;filter:drop-shadow(0 0 8px #22c55e55)}
+
+  .gridField{position:absolute;inset:0;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(8,1fr);
+             gap:8px;padding:88px 24px 24px;z-index:2}
+  .slot{position:relative;width:110px;height:150px;justify-self:center;align-self:center}
+  .posTag{position:absolute;top:-18px;left:0;font-size:11px;color:#d2d8e6}
+  .slot .ghost{position:absolute;inset:0;border:2px dashed #8b9bbd88;border-radius:16px;display:grid;place-items:center;color:#b7c2db;font-size:12px;background:rgba(255,255,255,.02)}
+  .slot.accept{outline:3px solid var(--neon);outline-offset:3px;filter:drop-shadow(0 8px 16px rgba(34,197,94,.2))}
+  .slot .placed{position:absolute;inset:0}
+
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);padding:10px 14px;background:#0b1325;border:1px solid #34405b;border-radius:12px;display:none}
+  .toast.show{display:block}
+
+  @media(max-width:920px){
+    .wrap{padding:18px}
+    .grid{gap:14px}
+    .card{width:100px;height:140px}
+    .slot{width:100px;height:140px}
+    .teamName{font-size:44px}
+  }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="brand"><div class="logo">L</div><strong>FOOTBALL FUN</strong></div>
+  <nav class="tabs">
+    <a href="#">Transfer Market</a>
+    <a href="#" class="active">Squad</a>
+    <a href="#">Club</a>
+  </nav>
+  <!-- REPLACED: Chemistry → Connect Wallet -->
+  <button class="walletBtn" id="walletBtn">Connect Wallet</button>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <!-- LEFT: Newly Minted (hidden until wallet connects) -->
+    <section class="panel shelf locked" id="shelfPanel">
+      <h3>Newly Minted</h3>
+      <p class="hint">Connect your wallet to reveal your latest pulls (demo).</p>
+      <div class="cards" id="shelf">
+        <!-- cards injected after connect OR pre-rendered here (we’ll keep them here but blurred/locked) -->
+        <div class="card legendary" draggable="true" data-name="Travis Kelce" data-pos="TE" data-ovr="93" data-rarity="legendary" data-id="kelce">
+          <div class="face">TE</div><div class="ovr">93</div><div class="pos">TE</div>
+          <div class="name">Travis Kelce</div><div class="rar">Legendary</div>
+        </div>
+        <div class="card epic" draggable="true" data-name="Alex Becker" data-pos="WR" data-ovr="86" data-rarity="epic" data-id="becker">
+          <div class="face">WR</div><div class="ovr">86</div><div class="pos">WR</div>
+          <div class="name">Alex Becker</div><div class="rar">Epic</div>
+        </div>
+        <div class="card basic" draggable="true" data-name="Alex Turner" data-pos="RB" data-ovr="74" data-rarity="basic" data-id="turner">
+          <div class="face">RB</div><div class="ovr">74</div><div class="pos">RB</div>
+          <div class="name">Alex Turner</div><div class="rar">Basic</div>
+        </div>
+      </div>
+      <div class="lockMsg">🔒 Wallet not connected</div>
+    </section>
+
+    <!-- RIGHT: Field -->
+    <section class="panel fieldWrap">
+      <button class="saveBtn" id="saveBtn">Save (demo)</button>
+      <div class="field">
+        <div class="headerChips">
+          <span class="chip">Team ★★★★☆</span>
+          <span class="chip">Formation: 1 QB • 2 RB • 3 WR • 1 TE • 5 OL</span>
+        </div>
+        <div class="teamName">UNITED</div>
+
+        <svg class="links" viewBox="0 0 1200 680" preserveAspectRatio="none">
+          <path class="link" d="M600,360  350,220" />
+          <path class="link" d="M600,360  600,220" />
+          <path class="link" d="M600,360  850,220" />
+          <path class="link" d="M600,360  480,470" />
+          <path class="link" d="M600,360  720,470" />
+          <path class="link" d="M360,520  840,520" />
+        </svg>
+
+        <div class="gridField" id="grid">
+          <!-- WR1 fixed -->
+          <div class="slot" style="grid-column:2;grid-row:3">
+            <span class="posTag">WR1</span>
+            <div class="card legendary placed"><div class="face">WR</div><div class="ovr">96</div><div class="pos">WR</div><div class="name">Justin Jefferson</div><div class="rar">Legendary</div></div>
+          </div>
+          <!-- WR3 drop -->
+          <div class="slot drop" data-accept="WR" data-slot="WR3" style="grid-column:6;grid-row:3">
+            <span class="posTag">WR3</span><div class="ghost">Drop WR here</div>
+          </div>
+          <!-- WR2 fixed -->
+          <div class="slot" style="grid-column:10;grid-row:3">
+            <span class="posTag">WR2</span>
+            <div class="card epic placed"><div class="face">WR</div><div class="ovr">94</div><div class="pos">WR</div><div class="name">Ja'Marr Chase</div><div class="rar">Epic</div></div>
+          </div>
+
+          <!-- QB fixed -->
+          <div class="slot" style="grid-column:6;grid-row:5">
+            <span class="posTag">QB</span>
+            <div class="card legendary placed"><div class="face">QB</div><div class="ovr">96</div><div class="pos">QB</div><div class="name">Patrick Mahomes</div><div class="rar">Legendary</div></div>
+          </div>
+
+          <!-- RB1 fixed -->
+          <div class="slot" style="grid-column:5;grid-row:6">
+            <span class="posTag">RB1</span>
+            <div class="card legendary placed"><div class="face">RB</div><div class="ovr">96</div><div class="pos">RB</div><div class="name">Christian McCaffrey</div><div class="rar">Legendary</div></div>
+          </div>
+          <!-- RB2 drop -->
+          <div class="slot drop" data-accept="RB" data-slot="RB2" style="grid-column:7;grid-row:6">
+            <span class="posTag">RB2</span><div class="ghost">Drop RB here</div>
+          </div>
+
+          <!-- TE drop -->
+          <div class="slot drop" data-accept="TE" data-slot="TE" style="grid-column:9;grid-row:5">
+            <span class="posTag">TE</span><div class="ghost">Drop TE here</div>
+          </div>
+
+          <!-- OL -->
+          <div class="slot" style="grid-column:3;grid-row:7"><span class="posTag">LT</span>
+            <div class="card epic placed"><div class="face">LT</div><div class="ovr">92</div><div class="pos">LT</div><div class="name">Tristan Wirfs</div><div class="rar">Epic</div></div>
+          </div>
+          <div class="slot" style="grid-column:4;grid-row:7"><span class="posTag">LG</span>
+            <div class="card epic placed"><div class="face">LG</div><div class="ovr">91</div><div class="pos">LG</div><div class="name">Quenton Nelson</div><div class="rar">Epic</div></div>
+          </div>
+          <div class="slot" style="grid-column:5;grid-row:7"><span class="posTag">C</span>
+            <div class="card epic placed"><div class="face">C</div><div class="ovr">92</div><div class="pos">C</div><div class="name">Creed Humphrey</div><div class="rar">Epic</div></div>
+          </div>
+          <div class="slot" style="grid-column:6;grid-row:7"><span class="posTag">RG</span>
+            <div class="card legendary placed"><div class="face">RG</div><div class="ovr">95</div><div class="pos">RG</div><div class="name">Zack Martin</div><div class="rar">Legendary</div></div>
+          </div>
+          <div class="slot" style="grid-column:7;grid-row:7"><span class="posTag">RT</span>
+            <div class="card epic placed"><div class="face">RT</div><div class="ovr">94</div><div class="pos">RT</div><div class="name">Lane Johnson</div><div class="rar">Epic</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast">Saved locally.</div>
+
+<script>
+  /* ===== Wallet Connect (MetaMask) ===== */
+  const walletBtn = document.getElementById('walletBtn');
+  const shelfPanel = document.getElementById('shelfPanel');
+
+  function shortAddr(a){ return a ? a.slice(0,6)+'…'+a.slice(-4) : ''; }
+
+  async function connectWallet(){
+    if(!window.ethereum){ alert('MetaMask not found. Please install or enable it.'); return; }
+    try{
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = await provider.getSigner();
+      const addr = await signer.getAddress();
+      walletBtn.classList.add('connected');
+      walletBtn.textContent = shortAddr(addr);
+      // unlock shelf (show newly minted)
+      shelfPanel.classList.remove('locked');
+    }catch(err){
+      console.warn(err);
+      alert(err?.shortMessage || err?.message || 'Wallet connection failed.');
+    }
+  }
+  walletBtn.addEventListener('click', connectWallet);
+
+  /* ===== Drag/Drop (unchanged from v2.1) ===== */
+  const shelf = document.getElementById('shelf');
+  const drops = [...document.querySelectorAll('.slot.drop')];
+
+  shelf.addEventListener('dragstart', (e)=>{
+    const card = e.target.closest('.card'); if(!card) return;
+    const d = pack(card);
+    e.dataTransfer.setData('text/plain', JSON.stringify(d));
+    requestAnimationFrame(()=> card.classList.add('dragging'));
+  });
+  shelf.addEventListener('dragend', (e)=> e.target.closest('.card')?.classList.remove('dragging'));
+
+  shelfPanel.addEventListener('dragover', e=>e.preventDefault());
+  shelfPanel.addEventListener('drop', e=>{
+    e.preventDefault();
+    const d = parse(e.dataTransfer.getData('text/plain')); if(!d) return;
+    const placed = document.querySelector(`.slot.drop .placed[data-id="${d.id}"]`);
+    if(placed){ const slot = placed.closest('.slot'); placed.remove(); ghost(slot); }
+    if(!shelf.querySelector(`.card[data-id="${d.id}"]`)) shelf.appendChild(makeShelfCard(d));
+    toast('Returned to shelf.');
+  });
+
+  drops.forEach(slot=>{
+    slot.addEventListener('dragover', e=>{ e.preventDefault(); slot.classList.add('accept'); });
+    slot.addEventListener('dragleave', ()=> slot.classList.remove('accept'));
+    slot.addEventListener('drop', e=>{
+      e.preventDefault(); slot.classList.remove('accept');
+      const d = parse(e.dataTransfer.getData('text/plain')); if(!d) return;
+      if(d.pos !== slot.dataset.accept){ flash(slot,'Wrong position'); return; }
+      document.querySelectorAll(`.slot.drop .placed[data-id="${d.id}"]`).forEach(n=>{
+        const s=n.closest('.slot'); n.remove(); ghost(s);
+      });
+      slot.querySelector('.placed')?.remove();
+      slot.appendChild(makePlacedCard(d));
+      slot.querySelector('.ghost')?.remove();
+      shelf.querySelector(`.card[data-id="${d.id}"]`)?.remove();
+      pulse(slot);
+    });
+  });
+
+  function makeShelfCard(d){
+    const div=document.createElement('div');
+    div.className=`card ${cls(d.rarity)}`; div.draggable=true;
+    for(const k in d) div.dataset[k]=d[k];
+    div.innerHTML=`<div class="face">${d.pos}</div><div class="ovr">${d.ovr}</div><div class="pos">${d.pos}</div>
+                   <div class="name">${d.name}</div><div class="rar">${cap(d.rarity)}</div>`;
+    div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify(d)); requestAnimationFrame(()=> div.classList.add('dragging')); });
+    div.addEventListener('dragend', ()=> div.classList.remove('dragging'));
+    return div;
+  }
+  function makePlacedCard(d){
+    const div=document.createElement('div');
+    div.className=`card placed ${cls(d.rarity)}`; div.setAttribute('data-id', d.id);
+    div.innerHTML=`<div class="face">${d.pos}</div><div class="ovr">${d.ovr}</div><div class="pos">${d.pos}</div>
+                   <div class="name">${d.name}</div><div class="rar">${cap(d.rarity)}</div>`;
+    div.draggable=true;
+    div.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', JSON.stringify(d)); div.classList.add('dragging'); });
+    div.addEventListener('dragend', ()=> div.classList.remove('dragging'));
+    return div;
+  }
+
+  function pack(card){ return { id:card.dataset.id, name:card.dataset.name, pos:card.dataset.pos, ovr:card.dataset.ovr, rarity:card.dataset.rarity }; }
+  function cls(r){ return r==='legendary'?'legendary':r==='epic'?'epic':'basic'; }
+  function cap(s){ return s[0].toUpperCase()+s.slice(1); }
+  function parse(s){ try{return JSON.parse(s)}catch{return null} }
+  function ghost(slot){ if(!slot.querySelector('.ghost')){ const g=document.createElement('div'); g.className='ghost'; g.textContent=`Drop ${slot.dataset.accept} here`; slot.appendChild(g); } }
+  function flash(slot,msg){ const g=slot.querySelector('.ghost'); if(g){ const o=g.textContent; g.textContent=msg; g.style.color='#ffb4b4'; setTimeout(()=>{ g.textContent=o; g.style.color=''; }, 900); } }
+  function pulse(slot){ slot.animate([{boxShadow:'0 0 0 0 rgba(34,197,94,0.8)'},{boxShadow:'0 0 0 14px rgba(34,197,94,0)'}],{duration:550,easing:'ease-out'}); }
+  function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=> t.classList.remove('show'), 1200); }
+
+  document.getElementById('saveBtn').addEventListener('click', ()=>{
+    const state={}; document.querySelectorAll('.slot.drop').forEach(s=>{
+      const n=s.querySelector('.placed .name'); state[s.dataset.slot]=n?n.textContent:null;
+    });
+    localStorage.setItem('squad-demo', JSON.stringify(state)); toast('Saved locally.');
+  });
+
+  // Optional: if wallet already connected, reflect immediately
+  (async function preloadConnected(){
+    if(!window.ethereum) return;
+    try{
+      const accounts = await window.ethereum.request({ method:'eth_accounts' });
+      if(accounts && accounts[0]){
+        walletBtn.classList.add('connected');
+        walletBtn.textContent = shortAddr(accounts[0]);
+        shelfPanel.classList.remove('locked');
+      }
+    }catch{}
+  })();
+</script>
+</body>
+</html>
