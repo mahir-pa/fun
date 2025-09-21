@@ -141,19 +141,20 @@ The **engine** of the system — handles payments, randomization, and NFT mintin
 ---
 
 ## 📸 Screenshots  
-<img width="1269" height="304" alt="Screenshot 2025-09-21 at 11 46 24 AM" src="https://github.com/user-attachments/assets/3d5f6d97-5671-4de1-81bb-0e95f65f49bc" />
-<img width="622" height="650" alt="Screenshot 2025-09-21 at 11 46 19 AM" src="https://github.com/user-attachments/assets/d95d1738-dff5-4d5a-b118-d47f6dd6873d" />
-<img width="1470" height="840" alt="Screenshot 2025-09-21 at 11 46 10 AM" src="https://github.com/user-attachments/assets/22b1e09f-84c2-46d3-a23d-37a5830c65b0" />
-<img width="1470" height="837" alt="Screenshot 2025-09-21 at 11 46 01 AM" src="https://github.com/user-attachments/assets/8f7381b0-42d0-469a-9c34-6aafa2ccd7f7" />
-<img width="1470" height="841" alt="Screenshot 2025-09-21 at 11 45 54 AM" src="https://github.com/user-attachments/assets/25394c02-7229-4695-ad38-eb181cd1d395" />
-<img width="1470" height="840" alt="Screenshot 2025-09-21 at 11 45 47 AM" src="https://github.com/user-attachments/assets/099b9338-6dd5-461b-9cd0-482dee55fd6e" />
-<img width="1468" height="774" alt="Screenshot 2025-09-21 at 11 45 32 AM" src="https://github.com/user-attachments/assets/809b8759-a10c-49fd-9bfa-55ed43c9d4d1" />
 <img width="1470" height="841" alt="Screenshot 2025-09-21 at 11 45 24 AM" src="https://github.com/user-attachments/assets/7e1a8ccd-ba2f-4c32-b93d-453a1033fe06" />
+<img width="1468" height="774" alt="Screenshot 2025-09-21 at 11 45 32 AM" src="https://github.com/user-attachments/assets/809b8759-a10c-49fd-9bfa-55ed43c9d4d1" />
+<img width="1470" height="840" alt="Screenshot 2025-09-21 at 11 45 47 AM" src="https://github.com/user-attachments/assets/099b9338-6dd5-461b-9cd0-482dee55fd6e" />
+<img width="1470" height="841" alt="Screenshot 2025-09-21 at 11 45 54 AM" src="https://github.com/user-attachments/assets/25394c02-7229-4695-ad38-eb181cd1d395" />
+<img width="1470" height="837" alt="Screenshot 2025-09-21 at 11 46 01 AM" src="https://github.com/user-attachments/assets/8f7381b0-42d0-469a-9c34-6aafa2ccd7f7" />
+<img width="1470" height="840" alt="Screenshot 2025-09-21 at 11 46 10 AM" src="https://github.com/user-attachments/assets/22b1e09f-84c2-46d3-a23d-37a5830c65b0" />
+<img width="622" height="650" alt="Screenshot 2025-09-21 at 11 46 19 AM" src="https://github.com/user-attachments/assets/d95d1738-dff5-4d5a-b118-d47f6dd6873d" />
+<img width="1269" height="304" alt="Screenshot 2025-09-21 at 11 46 24 AM" src="https://github.com/user-attachments/assets/3d5f6d97-5671-4de1-81bb-0e95f65f49bc" />
 
 ---
 
 ## 📽 Demo Video (to be added)  
 
+[demovid](https://youtu.be/qoSgcz_mR-g)
 
 ---
 
