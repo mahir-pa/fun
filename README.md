@@ -5,8 +5,6 @@ A decentralized fantasy sports platform where users open randomized NFT player p
 
 ---
 
-https://github.com/mahir-pa/fun/releases/download/demovid/0921.mp4
-
 ## 🌍 Problem  
 
 Fantasy football platforms today are:  
