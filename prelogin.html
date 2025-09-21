@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AMERICAN FOOTBALL Fun — Pre-login</title>
+<style>
+  /* ===== Base / Tokens ===== */
+  :root{
+    --bg:#0a0d17; --bg2:#0f1425; --panel:rgba(255,255,255,.06);
+    --panelBorder:rgba(255,255,255,.12); --muted:rgba(255,255,255,.72);
+    --ink:#fff; --ink2:#0b1220; --accent:#4f46e5; --navH:72px;
+  }
+  *,*:before,*:after{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;color:var(--ink);
+    background:linear-gradient(180deg,var(--bg),var(--bg2));
+    font-family: ui-sans-serif,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans";
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+  .rounded-xl{border-radius:24px}
+  .rounded-2xl{border-radius:32px}
+  .rounded-full{border-radius:9999px}
+  .shadow{box-shadow:0 10px 40px rgba(0,0,0,.35)}
+  .panel{background:var(--panel);border:1px solid var(--panelBorder)}
+  .split{display:grid;gap:24px;grid-template-columns:1fr}
+  @media(min-width:920px){.split{grid-template-columns:1fr 1fr}}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;padding:12px 22px;background:#000;color:#fff;
+    border:1px solid rgba(255,255,255,.12);border-radius:9999px;text-decoration:none;font-weight:800;
+    transition:transform .06s ease, background .2s ease;
+  }
+  .btn:hover{background:#161616}.btn:active{transform:translateY(1px) scale(.99)}
+  .muted{color:var(--muted)}
+  .h-32{height:32px}.h-48{height:48px}
+  .center{text-align:center}
+
+  /* ===== Nav ===== */
+  header.nav{
+    position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,.06);
+    background:linear-gradient(180deg,rgba(10,13,23,.95),rgba(10,13,23,.6));
+    backdrop-filter:blur(6px) saturate(1.1);
+  }
+  .nav-inner{display:flex;justify-content:space-between;align-items:center;padding:18px 0;min-height:var(--navH)}
+  .logoMark{display:flex;align-items:center;gap:10px}
+  .logo-box{width:36px;height:36px;border-radius:10px;background:#fff;color:#000;font-weight:900;display:grid;place-items:center}
+  .brand{letter-spacing:.18em;font-size:12px;color:rgba(255,255,255,.6)}
+
+  /* ===== Global box height helpers ===== */
+  .hero-split > *{min-height:calc(100vh - var(--navH) - 24px)} /* fill first screen */
+  @media(max-width:919px){.hero-split > *{min-height:calc(100vh - var(--navH) - 12px)}}
+  .tall-split > *{min-height:clamp(520px, 62vh, 720px)} /* beef up other side-by-side sections */
+
+  /* ===== Hero ===== */
+  .hero-left{
+    position:relative;padding:56px 44px 96px 44px; /* extra bottom so nothing overlaps */
+    background:
+      radial-gradient(1200px 400px at 80% -20%, rgba(99,102,241,.25), transparent 60%),
+      linear-gradient(180deg, rgba(56,62,126,.25), rgba(16,19,36,.2));
+    overflow:hidden;border-radius:32px;
+  }
+  .hero-left h1{margin:0;font-weight:1000;line-height:1.02;font-size:clamp(38px,5.6vw,72px)}
+  .hero-left p{margin:14px 0 0 0}
+  .findmore{
+    position:absolute;left:32px;bottom:24px;display:flex;align-items:center;gap:10px;
+    font-size:13px;color:rgba(255,255,255,.78)
+  }
+  .findmore .dot{width:30px;height:30px;border-radius:9999px;border:1px solid rgba(255,255,255,.35);display:grid;place-items:center}
+
+  .hero-right{display:grid;place-items:center;border-radius:32px;overflow:hidden}
+  .ph-video{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+
+  /* ===== Band ===== */
+  .white-band{background:#fff;color:#000;padding:180px 16px;border-radius:32px}
+  .white-band h2{margin:0;text-align:center;font-weight:900;font-size:clamp(22px,3.6vw,40px);}
+
+  /* ===== Reusable image placeholder ===== */
+  .img-ph{
+    --bg: none; /* override with style="--bg:url('x.jpg')" */
+    background:
+      linear-gradient(0deg, rgba(0,0,0,.18), rgba(0,0,0,.18)),
+      var(--bg) center/cover no-repeat, rgba(0,0,0,.22);
+    border:1px dashed rgba(255,255,255,.25);
+    color:rgba(255,255,255,.75);
+    display:grid;place-items:center;border-radius:18px;
+  }
+
+  /* ===== Jerseys / Lotus (original card styles remain) ===== */
+  .lotus{padding:44px;background:#0f1425;position:relative;overflow:hidden;border-radius:32px}
+  .lotus .stadium-bg{
+    position:absolute;inset:0;opacity:.25;pointer-events:none;
+    background:
+      radial-gradient(1200px 400px at 50% -10%, rgba(99,102,241,.45), transparent 60%),
+      var(--bg) center/cover no-repeat;
+  }
+  .lotus h3{position:relative;margin:0 0 10px;text-align:center;font-size:clamp(30px,4.6vw,58px);font-weight:1000}
+  .lotus p{position:relative;margin:0 0 24px;text-align:center;color:rgba(255,255,255,.75)}
+  .lotus-grid{position:relative;display:grid;grid-template-columns:repeat(5, minmax(0,1fr));gap:18px;align-items:end;justify-items:center;min-height:clamp(520px,60vh,680px)}
+  @media(max-width:900px){.lotus-grid{grid-template-columns:repeat(3, minmax(0,1fr))}}
+  .jersey{
+    position:relative;width:220px;height:300px;border-radius:18px;overflow:hidden;background:var(--jersey);
+    display:grid;place-items:center;box-shadow:0 14px 34px rgba(0,0,0,.35);transition:transform .35s ease, opacity .35s ease;
+  }
+  .jersey:after{content:"";position:absolute;inset:0;background:radial-gradient(400px 200px at 20% 10%, rgba(255,255,255,.25), transparent 60%);}
+  .jersey .num{position:absolute;top:12px;right:16px;font-size:80px;font-weight:1000;color:rgba(255,255,255,.95);text-shadow:0 2px 8px rgba(0,0,0,.35)}
+  .jersey .name{position:absolute;bottom:12px;left:14px;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+
+  /* ===== Features (Div 4) ===== */
+  .feature-left{position:relative;padding:24px;border-radius:32px}
+  .slider-shell{position:relative;height:clamp(520px,60vh,640px)}
+  .slide{position:absolute;inset:0;opacity:0;transform:translateY(12px) scale(.98);transition:opacity .4s ease, transform .4s ease}
+  .slide.active{opacity:1;transform:translateY(0) scale(1)}
+  .tile{height:100%;padding:22px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid var(--panelBorder);display:flex;flex-direction:column}
+  .tile h4{margin:2px 0 10px;font-size:24px;font-weight:1000;letter-spacing:.02em}
+  .packs{display:flex;gap:12px;justify-content:center;align-items:center;margin:8px 0 16px}
+  .pack{width:74px;height:100px;border-radius:12px;background:linear-gradient(180deg,#f7f7f7,#bdbdbd);color:#000;font-size:10px;font-weight:900;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+  .buybox{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);padding:14px;border-radius:14px}
+  .buyrow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .buycell{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);padding:12px;border-radius:12px}
+  .buylabel{font-size:12px;color:rgba(255,255,255,.6)}
+  .buyvalue{font-size:28px;font-weight:900}
+  .leagues{display:grid;gap:12px}
+  .league{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12)}
+  .pill{font-size:13px;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:9999px}
+  .feature-right{padding:24px;border-radius:32px}
+  .feature-right .img-ph{height:clamp(520px,60vh,640px);border-radius:22px}
+
+  /* ===== IQ + Trade (Div 5) ===== */
+  .iq-left{padding:28px;background:#fff;color:#000;border-radius:22px;display:grid;grid-template-rows:auto 1fr;gap:14px;min-height:clamp(520px,60vh,640px)}
+  .iq-left .img-ph{height:220px;border-color:rgba(0,0,0,.15);color:#222}
+  .iq-left h5{margin:0;font-size:clamp(24px,3.2vw,38px);font-weight:1000}
+  .iq-left p{margin:0;color:#111827;opacity:.9}
+  .trade-card{position:relative;padding:28px;border-radius:22px;background:#991b1b;overflow:hidden;display:grid;grid-template-rows:1fr auto;min-height:clamp(520px,60vh,640px)}
+  .trade-card:after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 70% 10%, rgba(255,255,255,.35), transparent 60%);opacity:.28;pointer-events:none}
+  .trade-inner{display:grid;place-items:center;gap:16px}
+  .trade-meta{text-align:center}
+  .trade-name{font-weight:900}
+  .chip{display:inline-block;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.2);border-radius:9999px;padding:6px 10px;font-size:12px;margin-top:6px}
+  .trade-title{margin:8px 0 0;font-size:24px;font-weight:1000}
+
+  /* ===== Phones (Div 6) — both halves are phone-shaped boxes */
+  .phones{padding:0;margin:0}
+  .phones h4{margin:26px 0 18px;text-align:center;font-size:clamp(22px,3.6vw,36px);font-weight:1000}
+  .phone-split{display:grid;gap:200px;grid-template-columns:1fr}
+  @media(min-width:920px){.phone-split{grid-template-columns:1fr 1fr}}
+  .phoneBox{
+    background:#fff;color:#000;border-radius:46px;border:4px solid #000;overflow:hidden;
+    min-height:clamp(640px,78vh,860px);box-shadow:0 20px 50px rgba(0,0,0,.45);position:relative;
+    display:grid;grid-template-rows:30px 1fr;margin-bottom:26px;
+  }
+  .phone-notch{height:30px;background:#000}
+  .phone-content{display:grid;place-items:center}
+  .phoneBox .img-ph{height:100%;width:100%;border:none;border-radius:0;color:#111}
+
+  /* ===== CTA (Div 7) ===== */
+  .cta{position:relative;padding:84px 16px;background:#0f1425;overflow:hidden;border-radius:32px}
+  .cta .img-ph{position:absolute;inset:0;opacity:.25;border:none}
+  .cta .inner{position:relative;text-align:center}
+  .cta h6{margin:0;font-size:clamp(46px,6.4vw,86px);font-weight:1000;letter-spacing:.02em}
+  .cta .sub{font-size:clamp(30px,4.4vw,62px);font-weight:1000;color:rgba(255,255,255,.35);margin-top:6px}
+
+  /* ===== Footer ===== */
+  footer{padding:22px 0 40px;color:rgba(255,255,255,.75)}
+  .socials{display:flex;gap:16px;align-items:center}
+  .socials svg{width:24px;height:24px;opacity:.85}
+
+  /* ===== Particles canvas ===== */
+  #particles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+
+  /* ===== NEW: Pure-CSS jersey silhouette INSIDE each .jersey card ===== */
+  .kit{
+    --kit:#d10000;         /* shirt color */
+    --trim:#ffffff;        /* neck/sleeve trim */
+    --accent:#ffd100;      /* side stripe */
+    position:relative;
+    width:150px;height:170px;
+    pointer-events:none;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,.35));
+    z-index:0;
+  }
+  .kit .sleeve{
+    position:absolute;top:34px;width:56px;height:74px;background:var(--kit);
+    border:6px solid var(--trim);border-bottom:0;
+  }
+  .kit .sleeve.left{left:-38px;border-radius:22px 8px 0 18px;transform:skewY(12deg) rotate(-6deg)}
+  .kit .sleeve.right{right:-38px;border-radius:8px 22px 18px 0;transform:skewY(-12deg) rotate(6deg)}
+  .kit .torso{
+    position:absolute;left:0;right:0;top:22px;height:126px;background:
+      linear-gradient(180deg, rgba(255,255,255,.06), transparent 26%),
+      repeating-linear-gradient(135deg, rgba(0,0,0,.06) 0 8px, rgba(255,255,255,.06) 8px 16px),
+      var(--kit);
+    border-radius:20px 20px 24px 24px;
+    box-shadow:inset 0 0 0 6px var(--trim);
+  }
+  .kit .collar{
+    position:absolute;left:50%;transform:translateX(-50%);
+    top:2px;width:70px;height:32px;background:var(--trim);border-radius:0 0 22px 22px;
+  }
+  .kit .collar:after{
+    content:"";position:absolute;inset:6px;background:var(--kit);border-radius:0 0 16px 16px;
+  }
+  .kit .stripe{position:absolute;top:32px;bottom:16px;width:12px;background:var(--accent);border-radius:8px;opacity:.9}
+  .kit .stripe.left{left:8px}
+  .kit .stripe.right{right:8px}
+  .kit .kit-num{
+    position:absolute;left:50%;top:72px;transform:translateX(-50%);
+    font-size:54px;font-weight:1000;letter-spacing:.02em;color:#fff;
+    text-shadow:0 2px 8px rgba(0,0,0,.35);-webkit-text-stroke:4px var(--trim);
+  }
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="logoMark">
+      <div class="logo-box">O</div>
+      <div class="brand">AMERICAN FOOTBALL FUN</div>
+    </div>
+    <a class="btn" href="login.html">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7-11-7z"/></svg>
+      Play Now
+    </a>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <!-- DIV 1: HERO SPLIT — fills first screen -->
+  <section class="split hero-split" style="margin-top:16px">
+    <div class="hero-left shadow">
+      <h1>OWN THE MOMENTS THAT MATTER</h1>
+      <p class="muted">No resets. No repeats. Just yours.</p>
+      <div class="h-48"></div>
+      <a class="btn" href="login.html">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7-11-7z"/></svg>
+        Play Now
+      </a>
+      <div class="findmore"><span class="dot">↓</span> FIND OUT MORE</div>
+    </div>
+
+    <!-- RIGHT HERO: working video -->
+    <div class="hero-right panel shadow">
+      <video
+        id="heroVideo"
+        class="ph-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster=""
+      >
+        <source src="./vid1.mp4" type="video/mp4" />
+        Your browser does not support the HTML5 video tag.
+      </video>
+    </div>
+  </section>
+
+  <!-- DIV 2: WHITE BAND -->
+  <section class="white-band shadow" style="margin:28px 0;">
+    <h2>USA's most rewarding football prediction app</h2>
+  </section>
+
+  <!-- DIV 3: LOTUS WITH BACKGROUND PLACEHOLDER -->
+  <section class="lotus shadow" style="margin-bottom:28px;">
+    <div class="stadium-bg" style="--bg:url('stadi.jpg');"></div>
+    <h3>OWN THE PLAYERS YOU LOVE</h3>
+    <p class="muted">Build from the best in American football</p>
+    <div class="lotus-grid">
+      <div class="jersey" id="j0"><div class="num"></div><div class="name"></div></div>
+      <div class="jersey" id="j1"><div class="num"></div><div class="name"></div></div>
+      <div class="jersey" id="j2" style="transform:scale(1.08)"><div class="num"></div><div class="name"></div></div>
+      <div class="jersey" id="j3"><div class="num"></div><div class="name"></div></div>
+      <div class="jersey" id="j4"><div class="num"></div><div class="name"></div></div>
+    </div>
+  </section>
+
+  <!-- DIV 4: FEATURES SPLIT (taller) -->
+  <section class="split tall-split" style="margin-bottom:28px;">
+    <div class="feature-left panel shadow">
+      <div class="slider-shell">
+        <!-- WIN -->
+        <div class="slide active" data-name="WIN">
+          <div class="tile">
+            <h4>WIN</h4>
+            <div class="packs">
+              <div class="pack" style="background:linear-gradient(180deg,#3b82f6,#1e3a8a);color:#fff">PRO</div>
+              <div class="pack" style="background:linear-gradient(180deg,#8b5cf6,#4c1d95);color:#fff">EPIC</div>
+              <div class="pack" style="background:linear-gradient(180deg,#facc15,#ca8a04);color:#000">LEGENDARY</div>
+            </div>            
+            <div style="margin-top:auto" class="center">
+              <a class="btn" href="#packs">Open Pack</a>
+            </div>
+          </div>
+        </div>
+        <!-- BUY -->
+        <div class="slide" data-name="BUY">
+          <div class="tile">
+            <h4>BUY</h4>
+            <div class="buybox">
+              <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:8px;">BUY MAHOMES SHARES</div>
+              <div class="buyrow">
+                <div class="buycell">
+                  <div class="buylabel">YOU BUY</div>
+                  <div class="buyvalue">34.9</div>
+                  <div class="buylabel">YOUR SHARES</div>
+                </div>
+                <div class="buycell">
+                  <div class="buylabel">YOU PAY</div>
+                  <div class="buyvalue">100</div>
+                  <div class="buylabel">YOUR BALANCE</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:auto" class="center">
+              <a class="btn" href="#buy">Buy Now</a>
+            </div>
+          </div>
+        </div>
+        <!-- COMPETE -->
+        <div class="slide" data-name="COMPETE">
+          <div class="tile">
+            <h4>COMPETE</h4>
+            <div class="leagues" style="margin-top:6px">
+              <div class="league">
+                <div><strong>Rookie League</strong><div class="muted" style="font-size:12px;">Tier: Bronze</div></div>
+                <span class="pill">Join</span>
+              </div>
+              <div class="league">
+                <div><strong>Pro League</strong><div class="muted" style="font-size:12px;">Tier: Silver</div></div>
+                <span class="pill">Join</span>
+              </div>
+              <div class="league">
+                <div><strong>Elite League</strong><div class="muted" style="font-size:12px;">Tier: Diamond</div></div>
+                <span class="pill">Join</span>
+              </div>
+            </div>
+            <div style="margin-top:auto" class="center">
+              <a class="btn" href="#compete">View Leagues</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="muted" style="text-align:center;margin-top:8px;font-size:12px;">
+        <span id="slideLabel">WIN</span> • auto-cycling every 3s
+      </div>
+    </div>
+
+    <div class="feature-right shadow">
+      <div class="img-ph" style="--bg:url('skill.png');" title="Replace with your Skill Based Rewards artwork"></div>
+    </div>
+  </section>
+
+  <!-- DIV 5: IQ + TRADE (taller) -->
+  <section class="split tall-split" style="margin-bottom:28px;">
+    <div class="iq-left shadow">
+      <div class="img-ph" style="--bg:url('lead.png');">Leaderboard / Graphic</div>
+      <div>
+        <h5>Turn your football IQ into real rewards</h5>
+        <p>Touchdowns, yardage, sacks and picks all add up. Read the game, spot momentum, win packs.</p>
+      </div>
+    </div>
+
+    <div class="trade-card shadow">
+      <div class="trade-inner">
+        <div class="jersey" id="singleJersey" style="--jersey:#0ea5e9;width:240px;height:320px;">
+          <div class="num" id="singleNum" style="font-size:92px">10</div>
+          <div class="name" id="singleName">Tyreek Hill</div>
+        </div>
+        <div class="trade-meta">
+          <div class="trade-name" id="singleLabel">Tyreek Hill</div>
+          <div class="chip" id="singleChip">Price 2.86 • Skill ↑3%</div>
+        </div>
+      </div>
+      <div class="trade-title">Trade the top players</div>
+    </div>
+  </section>
+
+  <!-- DIV 6: Two PHONE-SHAPED halves -->
+  <section class="phones">
+    <h4>Top leagues. One live market. NFL, College, and beyond.</h4>
+    <div class="phone-split">
+      <div class="phoneBox shadow">
+        <div class="phone-notch"></div>
+        <div class="phone-content">
+          <div class="img-ph" style="--bg:url('app1.png');" title="Phone UI mock 1">App UI Placeholder</div>
+        </div>
+      </div>
+      <div class="phoneBox shadow">
+        <div class="phone-notch"></div>
+        <div class="phone-content">
+          <div class="img-ph" style="--bg:url('app2.png');" title="Phone UI mock 2">App UI Placeholder</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIV 7: CTA bigger + bg placeholder -->
+  <section class="cta shadow" style="margin:28px 0;">
+    <div class="img-ph" style="--bg:url('');"></div><!-- set url('cta.jpg') -->
+    <div class="inner">
+      <h6>JOIN NOW</h6>
+      <div class="sub">BE REWARDED</div>
+      <div class="h-48"></div>
+      <a class="btn" href="login.html">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7-11-7z"/></svg>
+        Play Now
+      </a>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+    <div>© <span id="year"></span> Gridiron Fun. All rights reserved.</div>
+    <div class="socials">
+      <!-- Discord -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37A19.79 19.79 0 0 0 16.558 3c-.2.35-.433.822-.593 1.196a17.26 17.26 0 0 0-7.93 0C7.874 3.822 7.64 3.35 7.44 3a19.79 19.79 0 0 0-3.76 1.37C.756 8.072-.454 12.61.154 17.07a19.9 19.9 0 0 0 5.993 3.13c.466-.64.88-1.322 1.234-2.04-.676-.256-1.33-.576-1.95-.95.164-.12.325-.244.48-.37 3.76 1.76 7.84 1.76 11.6 0 .156.128.318.252.482.372-.62.374-1.275.694-1.952.95.355.718.769 1.4 1.236 2.04a19.9 19.9 0 0 0 5.992-3.13c.75-5.543-.452-10.066-2.962-12.7zM8.726 14.63c-1.1 0-1.996-1.02-1.996-2.28 0-1.258.88-2.278 1.996-2.278 1.127 0 2.015 1.03 1.996 2.278 0 1.26-.87 2.28-1.996 2.28zm6.548 0c-1.1 0-1.996-1.02-1.996-2.28 0-1.258.88-2.278 1.996-2.278 1.127 0 2.015 1.03 1.996 2.278 0 1.26-.87 2.28-1.996 2.28z"/></svg>
+      <!-- X -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2H21l-6.47 7.39L22 22h-6.99l-4.7-6.16L4.8 22H2l6.93-7.92L2.2 2h7.03l4.24 5.67L18.25 2h-.006zM9.66 3.67H6.2l2.87 3.84 1.59 2.13L5.4 20h3.46l3.08-3.53 1.73-1.98L18.64 20h2.74l-3.7-4.98-2.18-2.93L20.8 4h-3.42l-2.99 3.42-1.73 1.97-2.99-3.72z"/></svg>
+      <!-- Instagram -->
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.35 3.608 1.325.975.975 1.263 2.242 1.325 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.35 2.633-1.325 3.608-.975.975-2.242 1.263-3.608 1.325-1.266.058-1.646.07-4.85.07s-3.523-.012-4.85-.069c-1.366-.062-2.633-.35-3.608-1.325-.975-.975-1.263-2.242-1.325-3.608C2.175 15.747 2.163 15.367 2.163 12s.012-3.584.07-4.85c.062-1.366.35-2.633 1.325-3.608C4.533 2.583 5.8 2.295 7.166 2.233 8.432 2.175 8.812 2.163 12 2.163zM12 3.785c-3.155 0-3.523.012-4.763.069-1.029.047-1.587.216-1.954.363-.492.19-.843.418-1.212.787-.369.369-.597.72-.787 1.212-.147.367-.316.925-.363 1.954-.057 1.24-.069 1.608-.069 4.763s.012 3.523.069 4.763c.047 1.029.216 1.587.363 1.954.19.492.418.843.787 1.212.369.369.72.597 1.212.787.367.147.925.316 1.954.363 1.24.057 1.608.069 4.763.069s3.523-.012 4.763-.069c1.029-.047 1.587-.216 1.954-.363.492-.19.843-.418 1.212-.787.369-.369.597-.72.787-1.212.147-.367.316-.925.363-1.954.057-1.24.069-1.608.069-4.763s-.012-3.523-.069-4.763c-.047-1.029-.216-1.587-.363-1.954-.19-.492-.418-.843-.787-1.212-.367-.147-.925-.316-1.954-.363-1.24-.057-1.608-.069-4.763-.069zM12 7.353a4.647 4.647 0 110 9.294 4.647 4.647 0 010-9.294zm0 1.622a3.025 3.025 0 100 6.05 3.025 3.025 0 000-6.05zM18.406 5.594a1.086 1.086 0 110 2.172 1.086 1.086 0 010-2.172z"/></svg>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Footer year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Kick off autoplay if the browser paused it
+  (function(){
+    const v = document.getElementById('heroVideo');
+    const tryPlay = () => v.play().catch(() => { v.controls = true; });
+    v.muted = true;
+    if (v.readyState >= 2) tryPlay(); else v.addEventListener('canplay', tryPlay, { once:true });
+    v.addEventListener('ended', () => { v.currentTime = 0; v.play(); });
+  })();
+
+  // ===== Lotus players (Div 3) — keep cards, add jersey silhouette inside =====
+  const players = [
+    { number: 15, name: "Patrick Mahomes",     color:"#8b0000", kit:"#b10f0f", trim:"#ffffff", accent:"#ffd100" },
+    { number: 18, name: "Justin Jefferson",    color:"#4c1d95", kit:"#4c1d95", trim:"#ffd700", accent:"#ffd700" },
+    { number: 23, name: "Christian McCaffrey", color:"#0ea5e9", kit:"#0ea5e9", trim:"#ffffff", accent:"#111827" },
+    { number: 87, name: "Travis Kelce",        color:"#991b1b", kit:"#c41212", trim:"#ffffff", accent:"#ffcc00" },
+    { number: 11, name: "Micah Parsons",       color:"#1d4ed8", kit:"#1d4ed8", trim:"#ffffff", accent:"#22d3ee" },
+  ];
+  let idx = 0;
+  const jerseyEls = ["j0","j1","j2","j3","j4"].map(id => document.getElementById(id));
+
+  function ensureKit(el){
+    let kit = el.querySelector('.kit');
+    if (!kit){
+      kit = document.createElement('div');
+      kit.className = 'kit';
+      kit.innerHTML = `
+        <div class="sleeve left"></div>
+        <div class="sleeve right"></div>
+        <div class="collar"></div>
+        <div class="torso"></div>
+        <div class="stripe left"></div>
+        <div class="stripe right"></div>
+        <div class="kit-num"></div>
+      `;
+      // insert the jersey behind your labels
+      el.insertBefore(kit, el.firstChild);
+    }
+    return kit;
+  }
+
+  function paintLotus(){
+    for(let i=0;i<5;i++){
+      const p = players[(idx+i)%players.length];
+      const el = jerseyEls[i];
+
+      // keep original behavior
+      el.style.setProperty('--jersey', p.color);
+      el.querySelector('.num').textContent = p.number;
+      el.querySelector('.name').textContent = p.name;
+
+      // jersey shape inside
+      const kit = ensureKit(el);
+      kit.style.setProperty('--kit',    p.kit    || p.color);
+      kit.style.setProperty('--trim',   p.trim   || '#fff');
+      kit.style.setProperty('--accent', p.accent || 'rgba(255,255,255,.25)');
+      kit.querySelector('.kit-num').textContent = p.number;
+
+      // animation
+      el.style.opacity = 0;
+      el.style.transform = i===2 ? "scale(1.08)" : "scale(0.94)";
+      requestAnimationFrame(()=>{ setTimeout(()=>{
+        el.style.transition="transform .35s ease, opacity .35s ease";
+        el.style.opacity=1;
+      }, 10); });
+    }
+  }
+  paintLotus(); setInterval(()=>{ idx=(idx+1)%players.length; paintLotus(); }, 3000);
+
+  // ===== Single trade rotation (Div 5 right) =====
+  const trio = [
+    { number: 10, name: "Tyreek Hill", color: "#0ea5e9" },
+    { number: 7,  name: "C.J. Stroud", color: "#1d4ed8" },
+    { number: 22, name: "Derrick Henry", color: "#7c2d12" },
+  ];
+  let tIdx=0; const single=document.getElementById('singleJersey'), sNum=document.getElementById('singleNum'), sName=document.getElementById('singleName'), sLabel=document.getElementById('singleLabel');
+  function paintSingle(){
+    const p = trio[tIdx];
+    single.style.setProperty('--jersey', p.color);
+    sNum.textContent = p.number; sName.textContent = p.name; sLabel.textContent = p.name;
+    single.style.opacity=0; single.style.transform="translateY(14px)";
+    setTimeout(()=>{ single.style.transition="all .35s ease"; single.style.opacity=1; single.style.transform="translateY(0)"; }, 20);
+  }
+  paintSingle(); setInterval(()=>{ tIdx=(tIdx+1)%trio.length; paintSingle(); }, 2500);
+
+  // ===== Div 4 slider: WIN / BUY / COMPETE every 3s =====
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const label = document.getElementById('slideLabel');
+  let s = 0;
+  function showSlide(i){
+    slides.forEach((el,idx)=>el.classList.toggle('active', idx===i));
+    label.textContent = slides[i].dataset.name;
+  }
+  showSlide(0);
+  setInterval(()=>{ s = (s+1)%slides.length; showSlide(s); }, 3000);
+
+  // ===== Particles: unobtrusive floating dots (no lines) =====
+  (function(){
+    const c = document.getElementById('particles');
+    const ctx = c.getContext('2d');
+    let w,h,ratio=window.devicePixelRatio||1, pts=[], COUNT=120;
+    function resize(){
+      w = c.clientWidth = window.innerWidth; h = c.clientHeight = window.innerHeight;
+      c.width = Math.floor(w*ratio); c.height = Math.floor(h*ratio); ctx.setTransform(ratio,0,0,ratio,0,0);
+    }
+    function make(){
+      pts = Array.from({length: COUNT}, () => ({
+        x: Math.random()*w, y: Math.random()*h,
+        r: 1 + Math.random()*2,
+        vx: (-0.25 + Math.random()*0.5), vy: (-0.25 + Math.random()*0.5),
+        a: 0.35 + Math.random()*0.3
+      }));
+    }
+    function tick(){
+      ctx.clearRect(0,0,w,h);
+      for(const p of pts){
+        p.x += p.vx; p.y += p.vy;
+        if(p.x<0||p.x>w) p.vx*=-1;
+        if(p.y<0||p.y>h) p.vy*=-1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,255,255,${p.a})`; ctx.fill();
+      }
+      requestAnimationFrame(tick);
+    }
+    resize(); make(); tick();
+    window.addEventListener('resize', ()=>{ resize(); make(); });
+  })();
+</script>
+</body>
+</html>

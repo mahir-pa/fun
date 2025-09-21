@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AMERICAN FOOTBALL FUN • Login</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0f1a; --card:#ffffff; --text:#0b1220; --muted:#6b7280;
+      --stroke:rgba(2,6,23,.12); --accent:#111827; --accentText:#ffffff;
+      --radius:22px; --shadow-lg:0 30px 70px rgba(0,0,0,.45), 0 6px 20px rgba(0,0,0,.25);
+      --shadow-sm:0 6px 14px rgba(2,6,23,.15);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;overflow:hidden;font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 70% -200px,#18223b 0%,rgba(24,34,59,0) 60%),
+                 radial-gradient(1000px 700px at -10% 110%,#0e1a30 0%,rgba(14,26,48,0) 60%),var(--bg);
+      color:#e5e7eb}
+    a{color:inherit;text-decoration:none}
+    canvas#particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+    .nav{position:fixed;top:14px;left:18px;right:18px;z-index:2;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:10px;align-items:center}
+    .brand .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#1f2937,#0b1220);display:grid;place-items:center;border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-sm)}
+    .brand .logo span{font-weight:900;color:#fff;letter-spacing:.5px}
+    .brand .title{font-weight:800;letter-spacing:.4px}
+    .ghost{opacity:.75}
+    .stage{position:relative;z-index:1;display:grid;place-items:center;min-height:100vh;padding:24px}
+    .card{width:min(440px,92vw);background:var(--card);color:var(--text);border-radius:20px;box-shadow:var(--shadow-lg);padding:28px 22px 16px;border:1px solid var(--stroke)}
+    .head{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+    .head .mark{width:42px;height:42px;border-radius:12px;background:#0b1220;display:grid;place-items:center;color:#fff;font-weight:900}
+    h1{margin:8px 0 18px;font-size:18px;text-align:center;color:#111827}
+    .stack{display:flex;flex-direction:column;gap:10px}
+    .row{display:flex;align-items:center;gap:10px;border:1px solid #e5e7eb;background:#fff;border-radius:14px;padding:10px 10px 10px 12px;box-shadow:var(--shadow-sm)}
+    .row input{flex:1;border:none;font:inherit;outline:none;padding:8px 6px;color:#0b1220}
+    .row input::placeholder{color:#9aa3b2}
+    .row button{border:none;background:#f3f4f6;color:#6b7280;padding:10px 14px;border-radius:10px;font-weight:700;cursor:not-allowed}
+    .row button.ready{background:#111827;color:#fff;cursor:pointer}
+    .fine{margin:12px 2px 4px;font-size:12px;color:#6b7280;text-align:center}
+    .fine a{color:#0b5ed7}
+    .sticky{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:1;filter:drop-shadow(0 30px 30px rgba(0,0,0,.45)) drop-shadow(0 10px 14px rgba(0,0,0,.2))}
+    .cta{border:none;background:var(--accent);color:var(--accentText);padding:16px 46px;border-radius:999px;font-weight:900;letter-spacing:.4px;font-size:16px;opacity:.65}
+    .cta.ready{opacity:1;cursor:pointer}
+    .close{position:absolute;right:16px;top:16px;border:none;background:#f3f4f6;border-radius:10px;width:34px;height:34px;display:grid;place-items:center;color:#111827;cursor:pointer}
+    .close:hover{background:#e5e7eb}
+    .divider{display:flex;align-items:center;gap:10px;color:#9aa3b2;font-weight:700;margin:6px 0}
+    .divider::before,.divider::after{content:"";flex:1;height:1px;background:#e5e7eb}
+    #gDisabled{display:none;color:#ef4444;font-size:12px;margin-top:-6px;margin-bottom:6px;text-align:center}
+    @media (max-width:420px){ .card{padding:22px 16px 12px} }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="nav">
+    <div class="brand"><div class="logo"><span>A</span></div><div class="title ghost">AMERICAN FOOTBALL·FUN</div></div>
+    <div class="ghost" style="font-weight:700;padding:8px 12px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.06);backdrop-filter:blur(6px)">Login</div>
+  </div>
+
+  <div class="stage">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="ttl">
+      <button class="close" title="Close" onclick="history.back()" aria-label="Close">✕</button>
+      <div class="head"><div class="mark">Login</div></div>
+      <h1 id="ttl">Log in or sign up</h1>
+
+      <div class="stack">
+        <!-- GOOGLE BUTTON -->
+        <div id="googleButton"></div>
+        <div id="gDisabled">Set your Google Client ID to enable Google login.</div>
+
+        <div class="divider">or</div>
+
+        <!-- EMAIL ROW -->
+        <div class="row">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+          <input id="email" type="email" placeholder="your@email.com" autocomplete="email">
+          <button id="emailGo" disabled>Submit</button>
+        </div>
+
+        <div class="divider">or</div>
+
+        <!-- METAMASK BUTTON -->
+        <button id="mm" class="row" style="justify-content:center;gap:12px;cursor:pointer">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4l8 5 1 4-5 4-4-6z" fill="#E27625"/><path d="M21 4l-8 5-1 4 5 4 4-6z" fill="#E4761B"/></svg>
+          <span style="font-weight:800;color:#0b1220">Connect MetaMask</span>
+        </button>
+      </div>
+
+      <p class="fine">By logging in I agree to the <a href="#">Terms</a> & <a href="#">Privacy Policy</a></p>
+      <p class="fine" style="margin-top:0">Protected by <strong>privy</strong></p>
+    </div>
+  </div>
+
+  <div class="sticky"><button id="cta" class="cta" disabled>Login</button></div>
+
+  <script>
+    // ===== CONFIG =====
+    const GOOGLE_CLIENT_ID = 'PASTE_YOUR_CLIENT_ID.apps.googleusercontent.com'; // replace me
+    const POST_LOGIN = 'app.html';
+
+    // Simple session store
+    const session = {
+      set(v){ localStorage.setItem('gf_user', JSON.stringify(v)); },
+      get(){ try{return JSON.parse(localStorage.getItem('gf_user'))}catch{return null} },
+      clear(){ localStorage.removeItem('gf_user') }
+    };
+
+    // Enable Google button when client id is provided
+    window.onload = function(){
+      if (GOOGLE_CLIENT_ID.startsWith('PASTE')) {
+        document.getElementById('gDisabled').style.display = 'block';
+      } else if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: ({credential}) => {
+            // decode JWT payload just to show an email/name without verifying
+            try { const payload = JSON.parse(atob(credential.split('.')[1]));
+              session.set({ provider:'google', email: payload.email, name: payload.name, sub: payload.sub });
+            } catch(e){ session.set({ provider:'google', token: credential }); }
+            goPostLogin();
+          }
+        });
+        google.accounts.id.renderButton(document.getElementById('googleButton'), {
+          type: 'standard', theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with'
+        });
+      }
+    };
+
+    // Email flow (client-side stub)
+    const cta = document.getElementById('cta');
+    const email = document.getElementById('email');
+    const emailGo = document.getElementById('emailGo');
+    const emailOk = () => /.+@.+\..+/.test(email.value);
+    function updateCTA(){
+      const ready = emailOk();
+      emailGo.disabled = !ready; emailGo.classList.toggle('ready', ready);
+      cta.disabled = !(ready || session.get()); cta.classList.toggle('ready', ready || session.get());
+    }
+    email.addEventListener('input', updateCTA); updateCTA();
+    emailGo.addEventListener('click', ()=>{ if(!emailOk()) return; session.set({ provider:'email', email: email.value }); goPostLogin(); });
+
+    // MetaMask connect
+    document.getElementById('mm').addEventListener('click', async ()=>{
+      if (!window.ethereum) { alert('MetaMask not found. Install the extension.'); return; }
+      try {
+        const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+        const chainId = await window.ethereum.request({ method:'eth_chainId' });
+        session.set({ provider:'metamask', address: accounts[0], chainId });
+        goPostLogin();
+      } catch (e) {
+        console.warn(e);
+        alert('MetaMask connection was rejected.');
+      }
+    });
+
+    // Big sticky CTA just uses whatever session we have or email input
+    cta.addEventListener('click', ()=>{
+      const s = session.get();
+      if (!s && emailOk()) session.set({ provider:'email', email: email.value });
+      if (!session.get()) return alert('Choose a login method.');
+      goPostLogin();
+    });
+
+    function goPostLogin(){
+      // Try to go to app.html; if missing, bounce back to login
+      fetch(POST_LOGIN, { method: 'HEAD' }).then(r=>{
+        if (r.ok) location.href = POST_LOGIN; else location.reload();
+      }).catch(()=> location.reload());
+    }
+  </script>
+
+  <!-- lightweight particles with no connecting lines -->
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    const DPR = Math.max(1, window.devicePixelRatio || 1);
+    let W, H, particles = [];
+    function resize(){ W = canvas.width = Math.floor(innerWidth * DPR); H = canvas.height = Math.floor(innerHeight * DPR); canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px'; if (particles.length === 0) spawn(); }
+    function spawn(){ const count = Math.min(140, Math.floor(innerWidth * innerHeight / 16000)); particles = Array.from({length: count}, ()=>({ x: Math.random()*W, y: Math.random()*H, r: (1 + Math.random()*1.5) * DPR, vx: (Math.random() -.5) * 0.25 * DPR, vy: (Math.random() -.5) * 0.25 * DPR, a: 0.5 + Math.random()*0.5 })); }
+    function tick(){ ctx.clearRect(0,0,W,H); for(const p of particles){ p.x += p.vx; p.y += p.vy; if(p.x < 0 || p.x > W) p.vx *= -1; if(p.y < 0 || p.y > H) p.vy *= -1; ctx.globalAlpha = p.a*0.8; ctx.fillStyle = '#7aa7ff'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); } requestAnimationFrame(tick); }
+    addEventListener('resize', resize); resize(); tick();
+  </script>
+</body>
+</html>

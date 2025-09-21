@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>American Football Fun — Dashboard</title>
+
+<!-- Ethers v6 UMD -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+
+<style>
+  :root{
+    --bg:#0a0d17; --bg2:#0f1425; --panel:rgba(255,255,255,.06);
+    --panelBorder:rgba(255,255,255,.12); --muted:rgba(255,255,255,.72);
+    --ink:#fff; --accent:#4f46e5; --navH:72px; --tickerH:40px;
+    --green:#22c55e; --red:#ef4444;
+  }
+  *,*:before,*:after{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;color:var(--ink);
+    background:linear-gradient(180deg,var(--bg),var(--bg2));
+    font-family: ui-sans-serif,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans";
+    overflow:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+  .panel{background:var(--panel);border:1px solid var(--panelBorder)}
+  .rounded-2xl{border-radius:32px}
+  .rounded-xl{border-radius:22px}
+  .muted{color:var(--muted)}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);padding:6px 10px;border-radius:9999px;font-size:12px}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;color:#000;border-radius:9999px;font-weight:900;border:1px solid rgba(255,255,255,.15)}
+  .shadow{box-shadow:0 10px 40px rgba(0,0,0,.35)}
+
+  /* Nav */
+  header.nav{
+    position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(255,255,255,.06);
+    background:linear-gradient(180deg,rgba(10,13,23,.95),rgba(10,13,23,.6));
+    backdrop-filter:blur(6px) saturate(1.1);
+  }
+  .nav-inner{display:flex;justify-content:space-between;align-items:center;padding:18px 0;min-height:var(--navH)}
+  .nav-left,.nav-right{display:flex;align-items:center;gap:18px}
+  .logo-box{width:36px;height:36px;border-radius:10px;background:#fff;color:#000;font-weight:900;display:grid;place-items:center}
+  .brand{letter-spacing:.18em;font-size:12px;color:rgba(255,255,255,.6)}
+  .nav-link{opacity:.9} .nav-link:hover{opacity:1}
+
+  /* Ticker */
+  .ticker-wrap{height:var(--tickerH);border-bottom:1px solid rgba(255,255,255,.06);
+    background:linear-gradient(180deg,rgba(10,13,23,.6),rgba(10,13,23,.3));overflow:hidden;position:relative}
+  .ticker{position:absolute;white-space:nowrap;display:flex;gap:40px;align-items:center;height:100%;padding-left:16px;will-change:transform}
+  .tick{display:flex;gap:8px;align-items:center;font-size:14px}
+  .up{color:var(--green)} .down{color:var(--red)}
+  .dot{width:8px;height:8px;border-radius:9999px;background:#9ca3af;display:inline-block}
+
+  /* Columns */
+  .columns{height:calc(100vh - var(--navH) - var(--tickerH));display:grid;grid-template-columns:1fr 2fr 1fr;gap:16px;margin-top:12px}
+  .col{min-height:0;display:grid;grid-template-rows:auto 1fr;gap:12px}
+  .scroll{min-height:0;overflow:auto;padding-right:4px}
+  .section-title{font-weight:900;letter-spacing:.02em;font-size:14px;color:rgba(255,255,255,.7);margin:6px 0}
+
+  /* Left column bits */
+  .profile-card{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;padding:14px}
+  .pfp{width:48px;height:48px;border-radius:9999px;background:#111;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;font-weight:900}
+  .bar{height:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:9999px;overflow:hidden}
+  .bar > span{display:block;height:100%;background:linear-gradient(90deg,#60a5fa,#22d3ee)}
+  .metric{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--panelBorder);display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .obj{padding:14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--panelBorder);display:grid;gap:8px;margin-bottom:12px}
+  .obj-head{display:flex;justify-content:space-between;align-items:center}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);padding:6px 10px;border-radius:9999px;font-size:12px}
+
+  /* Middle column */
+  .welcome{padding:18px;border-radius:22px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.12)}
+  .welcome-inner{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;align-items:center}
+  .brand-art{
+    height:180px;border-radius:16px;border:1px dashed rgba(255,255,255,.25);
+    display:grid;place-items:center;color:#fff9; position:relative; overflow:hidden;
+  }
+  .brand-art img{max-width:100%;max-height:100%;object-fit:cover;display:none}
+  .brand-art .ph{position:absolute;inset:0;display:grid;place-items:center;color:#a1a1aa;font-weight:700;letter-spacing:.08em}
+
+  .tile{padding:16px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--panelBorder)}
+  .mini-row{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+  .packs{display:flex;gap:12px;align-items:flex-end}
+  .pack{width:64px;height:88px;border-radius:12px;background:linear-gradient(180deg,#f7f7f7,#bdbdbd);color:#000;font-size:10px;font-weight:900;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+  .pack.selected{ outline:3px solid var(--accent); transform:translateY(-2px) }
+  .pack:hover{ cursor:pointer; opacity:.95 }
+  .list{display:grid;gap:10px}
+  .row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+  .avatar{width:32px;height:32px;border-radius:9999px;background:#0ea5e9;border:1px solid rgba(255,255,255,.25);display:grid;place-items:center;font-weight:900}
+  .meta{font-size:12px;color:rgba(255,255,255,.75)}
+  .price{font-weight:900}
+  .delta{font-size:12px}
+  .spark{width:28px;height:12px;background:linear-gradient(180deg,#fff8,#fff2);border-radius:3px}
+  .toast{position:fixed;right:16px;bottom:16px;background:#111;border:1px solid rgba(255,255,255,.15);padding:12px 14px;border-radius:12px;z-index:50}
+
+  /* Right column */
+  .note{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--panelBorder);display:flex;gap:12px;align-items:flex-start}
+
+  /* Particles */
+  #particles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+
+  @media(max-width:1024px){
+    .columns{grid-template-columns:1fr; height:auto}
+    body{overflow:auto}
+    .ticker-wrap{position:sticky;top:var(--navH);z-index:20}
+  }
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <div class="nav-left">
+      <div class="logo-box">A</div>
+      <div class="brand">AMERICAN FOOTBALL FUN</div>
+      <a class="nav-link" href="postlogin.html">Squad</a>
+      <a class="nav-link" href="transfers.html">Transfers</a>
+      <a class="nav-link" href="#">Live Scores</a>
+      <a class="nav-link" href="#">Leaderboard</a>
+    </div>
+    <div class="nav-right">
+      <span title="Notifications">🛎️</span>
+      <span class="pill" id="coinPill">0</span>
+      <span class="pfp" style="width:32px;height:32px">V</span>
+    </div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker"></div>
+</div>
+
+<!-- 3 COLUMNS -->
+<main class="wrap" style="margin-top:12px">
+  <div class="columns">
+    <!-- LEFT -->
+    <section class="col">
+      <div class="section-title">PROFILE</div>
+      <div class="scroll">
+        <div class="panel rounded-2xl profile-card shadow">
+          <div class="pfp">V</div>
+          <div>
+            <div style="font-weight:900">vitalcrawdad#6410</div>
+            <div class="pill">⭐ Bronze</div>
+          </div>
+        </div>
+
+        <div class="panel rounded-2xl shadow" style="padding:14px">
+          <div class="muted" style="font-size:12px;margin-bottom:6px">REP</div>
+          <div class="bar"><span style="width:10%"></span></div>
+          <div class="muted" style="font-size:12px;margin-top:6px">Next level 200</div>
+        </div>
+
+        <div class="panel rounded-xl shadow" style="padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <span class="muted">SKILL RATING</span><strong>0</strong>
+        </div>
+        <div class="panel rounded-xl shadow" style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+          <span class="muted">SQUAD VALUE</span><strong>0</strong>
+        </div>
+
+        <div class="section-title">OBJECTIVES</div>
+
+        <div class="panel obj shadow">
+          <div class="obj-head"><strong>Rip it!</strong><span class="chip">🎖 25</span></div>
+          <div class="muted" style="font-size:13px">Open your 1st pack</div>
+        </div>
+
+        <div class="panel obj shadow">
+          <div class="obj-head"><strong>OPEN. YOUR. PACKS.</strong><span class="chip">🎖 25</span></div>
+          <div class="muted" style="font-size:13px">Open 10 packs in total</div>
+          <div class="bar"><span style="width:35%"></span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MIDDLE -->
+    <section class="col">
+      <div class="section-title">DASHBOARD</div>
+      <div class="scroll">
+        <div class="welcome shadow">
+          <div class="welcome-inner">
+            <div>
+              <h2 style="margin:0 0 8px;font-weight:1000;font-size:26px">Welcome to AmericanFootball.Fun</h2>
+              <p class="muted" style="margin:0">You are going to be awesome.</p>
+              <div style="margin-top:18px"><a class="btn" href="#">How to play</a></div>
+            </div>
+            <!-- Brand artwork with placeholder -->
+            <div class="brand-art">
+              <img id="brandImg" src="brandartwork.webp" alt="Brand Artwork" onload="this.style.display='block';document.getElementById('brandPH').style.display='none';" onerror="this.style.display='none';document.getElementById('brandPH').style.display='grid';" />
+              <div id="brandPH" class="ph">Drop <code>brandartwork.png</code> here</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-row" style="margin-top:12px">
+          <div class="tile shadow">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-weight:900">Tournament Complete!</div>
+                <div class="muted" style="font-size:12px">28th Aug - 1st Sep</div>
+              </div>
+              <div class="pill">E✦</div>
+            </div>
+            <div style="margin-top:14px"><a class="btn" href="#">Reveal winners</a></div>
+          </div>
+
+          <!-- Packs (wired to contracts) -->
+          <div class="tile shadow" id="packsTile">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div>
+                <div style="font-weight:900">Open Packs</div>
+                <div class="muted" style="font-size:12px">NFT drops: <span id="nftOwned">—</span></div>
+              </div>
+              <div id="priceHint" class="muted" style="font-size:12px"></div>
+            </div>
+            <div class="packs">
+              <div class="pack" data-pack="0" style="background:linear-gradient(180deg,#3b82f6,#1e3a8a);color:#fff">
+                PRO
+                <div style="font-size:10px;margin-top:4px">1 🪙</div>
+              </div>
+              <div class="pack" data-pack="1" style="background:linear-gradient(180deg,#8b5cf6,#4c1d95);color:#fff">
+                EPIC
+                <div style="font-size:10px;margin-top:4px">5 🪙</div>
+              </div>
+              <div class="pack" data-pack="2" style="background:linear-gradient(180deg,#facc15,#ca8a04);color:#000">
+                LEGENDARY
+                <div style="font-size:10px;margin-top:4px">10 🪙</div>
+              </div>
+            </div>            
+            <div style="margin-top:12px">
+              <a class="btn" id="buyBtn" href="#">Buy Now</a>
+            </div>
+            <div class="muted" id="statusLine" style="font-size:12px;margin-top:8px"></div>
+          </div>
+        </div>
+
+        <!-- Trends / Updates (decorative) -->
+        <div class="tile shadow" style="margin-top:14px">
+          <div style="font-weight:900;margin-bottom:10px">Price Trends</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:8px">Top Risers</div>
+              <div class="list" id="risers"></div>
+            </div>
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:8px">Top Fallers</div>
+              <div class="list" id="fallers"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tile shadow" style="margin-top:14px">
+          <div style="font-weight:900;margin-bottom:10px">Player Updates</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:8px">Best Form</div>
+              <div class="list" id="bestForm"></div>
+            </div>
+            <div>
+              <div class="muted" style="font-size:12px;margin-bottom:8px">Worst Form</div>
+              <div class="list" id="worstForm"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="col">
+      <div class="section-title">NOTIFICATIONS</div>
+      <div class="scroll">
+        <div class="note panel rounded-xl shadow">
+          <div>🔕</div>
+          <div>
+            <div style="font-weight:900">No notifications yet</div>
+            <div class="muted" style="font-size:13px">You’ll see alerts for auctions, trades, and rewards here.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Toast -->
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+  // ===== Hard-wired contract addresses (Coston2 testnet, chainId 114) =====
+  const STORAGE_ADDR = "0xEFFF8Df0A21dc77bC5d3Fd040EF39b179936bC72";
+  const NFT_ADDR     = "0xF1d5f5ea073d14C4d051B733Ff762e56bDD051aD";
+  const LOGIC_ADDR   = "0xaa97DC3196223b7d8b3d22af462547354FBcC867";
+  const COSTON2_HEX  = "0x72"; // 114
+
+  // ===== ABIs (minimal) =====
+  // Logic: prices + buy
+  const LOGIC_ABI = [
+    "function getPrices() view returns (uint256 basic, uint256 epic, uint256 legendary)",
+    "function buyAndOpenPack(uint8 packType) payable",
+    "event OpenedPack(address indexed user, uint8 packType, uint256 playerId, uint8 rolledTier)"
+  ];
+  // NFT is ERC1155
+  const ERC1155_MIN_ABI = [
+    "function balanceOf(address account, uint256 id) view returns (uint256)",
+    "event TransferSingle(address indexed operator,address indexed from,address indexed to,uint256 id,uint256 value)"
+  ];
+
+  // ===== UI handles =====
+  const buyBtn     = document.getElementById("buyBtn");
+  const priceHint  = document.getElementById("priceHint");
+  const nftOwnedEl = document.getElementById("nftOwned");
+  const statusLine = document.getElementById("statusLine");
+  const toastEl    = document.getElementById("toast");
+
+  // ===== Ticker (decorative) =====
+  (function buildTicker(){
+    const tickerEl = document.getElementById('ticker');
+    const data = [
+      {n:"P. Mahomes", d:+0.9},{n:"J. Jefferson", d:+0.8},{n:"C. McCaffrey", d:+0.7},
+      {n:"J. Allen", d:+0.6},{n:"J. Hurts", d:+0.5},{n:"T. Hill", d:+0.9},
+      {n:"M. Parsons", d:-0.3},{n:"N. Bosa", d:+0.4},{n:"J. Chase", d:+0.6},
+      {n:"A. Rodgers", d:-0.2},{n:"D. Henry", d:+0.3},{n:"S. Diggs", d:-0.1},
+      {n:"C. Kelce", d:+0.5},{n:"C. Lamb", d:+0.8},{n:"G. Kittle", d:-0.3}
+    ];
+    function node(item){
+      const wrap=document.createElement('div'); wrap.className='tick';
+      const dot=document.createElement('span'); dot.className='dot';
+      const name=document.createElement('span'); name.textContent=item.n;
+      const pct=document.createElement('span'); pct.className=item.d>=0?'up':'down';
+      pct.textContent=`${item.d>=0?'+':''}${item.d.toFixed(1)}%`;
+      wrap.append(dot,name,pct); return wrap;
+    }
+    [...data, ...data].forEach(it=>tickerEl.appendChild(node(it)));
+    let w=tickerEl.scrollWidth/2, x=0;
+    (function step(){ x -= 0.5; if(Math.abs(x) >= w) x = 0; tickerEl.style.transform=`translateX(${x}px)`; requestAnimationFrame(step); })();
+  })();
+
+  // ===== Particles (decorative) =====
+  (function(){
+    const c = document.getElementById('particles'), ctx=c.getContext('2d');
+    let w,h,ratio=window.devicePixelRatio||1, pts=[], COUNT=120;
+    function resize(){ w=c.clientWidth=window.innerWidth; h=c.clientHeight=window.innerHeight; c.width=Math.floor(w*ratio); c.height=Math.floor(h*ratio); ctx.setTransform(ratio,0,0,ratio,0,0); }
+    function make(){ pts = Array.from({length: COUNT}, () => ({ x:Math.random()*w, y:Math.random()*h, r:1+Math.random()*2, vx:(-0.25+Math.random()*0.5), vy:(-0.25+Math.random()*0.5), a:0.35+Math.random()*0.3 })); }
+    function tick(){ ctx.clearRect(0,0,w,h); for(const p of pts){ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${p.a})`; ctx.fill(); } requestAnimationFrame(tick); }
+    resize(); make(); tick(); window.addEventListener('resize', ()=>{ resize(); make(); });
+  })();
+
+  // ===== Fake side lists (decorative) =====
+  function addRows(id, arr){
+    const box = document.getElementById(id);
+    arr.forEach((p,i)=>{
+      const row=document.createElement('div'); row.className='row';
+      const av=document.createElement('div'); av.className='avatar'; av.textContent=String(i+1).padStart(2,'0');
+      const mid=document.createElement('div'); mid.innerHTML=`<div style="font-weight:900">${p.name}</div><div class="meta">${p.team}</div>`;
+      const r=document.createElement('div'); r.innerHTML=`<div class="price">🪙 ${p.price.toFixed(4)}</div><div class="delta ${p.delta>=0?'up':'down'}">${p.delta>=0?'+':''}${p.delta.toFixed(1)}%</div>`;
+      row.append(av,mid,r); box.appendChild(row);
+    });
+  }
+  addRows('risers', [
+    {name:"Patrick Mahomes", team:"KC • QB", price:0.0778, delta:+20.9},
+    {name:"Justin Jefferson", team:"MIN • WR", price:0.0126, delta:+8.2},
+    {name:"Tyreek Hill", team:"MIA • WR", price:0.0169, delta:+7.8},
+  ]);
+  addRows('fallers', [
+    {name:"Derrick Henry", team:"BAL • RB", price:0.0275, delta:-5.7},
+    {name:"Greg Zuerlein", team:"NYJ • K", price:0.0230, delta:-3.5},
+    {name:"Mike Williams", team:"NYJ • WR", price:0.0567, delta:-2.3},
+  ]);
+  addRows('bestForm', [
+    {name:"CeeDee Lamb", team:"DAL • WR", price:1, delta:+9.8},
+    {name:"Amon-Ra St. Brown", team:"DET • WR", price:1, delta:+7.6},
+    {name:"Breece Hall", team:"NYJ • RB", price:1, delta:+6.2},
+  ]);
+  addRows('worstForm', [
+    {name:"Odell Beckham Jr.", team:"MIA • WR", price:1, delta:-5.1},
+    {name:"Josh Jacobs", team:"GB • RB", price:1, delta:-3.8},
+    {name:"Chris Olave", team:"NO • WR", price:1, delta:-2.9},
+  ]);
+
+  // ===== On-chain integration =====
+  let selectedPack = 0;
+  let cachedPrices = null;
+  let lastDropCount = 0;
+
+  document.querySelectorAll(".pack").forEach(el=>{
+    el.addEventListener("click", async ()=>{
+      document.querySelectorAll(".pack").forEach(p=>p.classList.remove("selected"));
+      el.classList.add("selected");
+      selectedPack = Number(el.getAttribute("data-pack")) || 0;
+      showSelectedPrice().catch(()=>{});
+    });
+  });
+  // default selection
+  document.querySelector('.pack[data-pack="0"]').classList.add("selected");
+
+  function showToast(msg, ok=true){
+    toastEl.textContent = msg;
+    toastEl.style.display = 'block';
+    toastEl.style.borderColor = ok ? 'rgba(34,197,94,.5)' : 'rgba(239,68,68,.5)';
+    setTimeout(()=> toastEl.style.display='none', 4200);
+  }
+
+  async function ensureCoston2(provider){
+    const net = await provider.getNetwork();
+    if (Number(net.chainId) === 114) return;
+    // try switch, then add
+    try {
+      await window.ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId: COSTON2_HEX }] });
+    } catch (e) {
+      if (e.code === 4902) {
+        await window.ethereum.request({
+          method:"wallet_addEthereumChain",
+          params:[{
+            chainId: COSTON2_HEX,
+            chainName:"Flare Coston2",
+            nativeCurrency:{ name:"C2FLR", symbol:"C2FLR", decimals:18 },
+            rpcUrls:["https://coston2-api.flare.network/ext/C/rpc"],
+            blockExplorerUrls:["https://coston2-explorer.flare.network"]
+          }]
+        });
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  async function getProvider(){ 
+    if(!window.ethereum) throw new Error("Wallet not found");
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    await ensureCoston2(provider);
+    return provider;
+  }
+  async function getSignerAndContracts(){
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+    const logic = new ethers.Contract(LOGIC_ADDR, LOGIC_ABI, signer);
+    const nft   = new ethers.Contract(NFT_ADDR,   ERC1155_MIN_ABI, signer);
+    return { provider, signer, logic, nft };
+  }
+
+  async function fetchPrices(logic){
+    if (cachedPrices) return cachedPrices;
+    try {
+      const res = await logic.getPrices(); // {basic, epic, legendary}
+      // ethers v6 struct can be accessed by property or index
+      const basic = res.basic ?? res[0];
+      const epic  = res.epic  ?? res[1];
+      const leg   = res.legendary ?? res[2];
+      cachedPrices = [basic, epic, leg];
+    } catch (e){
+      // fallback for demo
+      cachedPrices = [ethers.parseEther("1"), ethers.parseEther("2"), ethers.parseEther("3")];
+      console.warn("getPrices() failed, using fallback 1/2/3 FLR", e);
+    }
+    return cachedPrices;
+  }
+
+  async function showSelectedPrice(){
+    try{
+      const { logic } = await getSignerAndContracts();
+      const [b,e,l] = await fetchPrices(logic);
+      const v = [b,e,l][selectedPack];
+      priceHint.textContent = `${["PRO","EPIC","LEGENDARY"][selectedPack]} • ${ethers.formatEther(v)} FLR`;
+    }catch{
+      priceHint.textContent = `${["PRO","EPIC","LEGENDARY"][selectedPack]} • …`;
+    }
+  }
+
+  // We can’t know all token IDs to sum balances up front (ERC1155),
+  // so we update "NFT drops" after each pack open from events.
+  function bumpOwned(by=1){
+    lastDropCount += by;
+    nftOwnedEl.textContent = String(lastDropCount);
+  }
+
+  buyBtn.addEventListener("click", async (e)=>{
+    e.preventDefault();
+    statusLine.textContent = "";
+    try{
+      const { provider, signer, logic } = await getSignerAndContracts();
+      // quick bytecode sanity
+      const code = await provider.getCode(LOGIC_ADDR);
+      if (code === "0x") throw new Error("Logic contract not found on Coston2");
+
+      const [b,e,l] = await fetchPrices(logic);
+      const value   = [b,e,l][selectedPack];
+
+      buyBtn.textContent = "Confirm in wallet…";
+      buyBtn.style.pointerEvents = "none";
+      buyBtn.style.opacity = "0.7";
+
+      // Optional dry-run:
+      try { await logic.buyAndOpenPack.staticCall(selectedPack, { value }); } catch(_) {}
+
+      const tx = await logic.buyAndOpenPack(selectedPack, { value });
+      statusLine.textContent = "Opening… waiting for confirmation";
+      const rcpt = await tx.wait();
+
+      // Try custom event first
+      let parsedOne = false;
+      try{
+        const iface = new ethers.Interface(LOGIC_ABI);
+        for(const log of rcpt.logs){
+          try{
+            const ev = iface.parseLog(log);
+            if(ev?.name === "OpenedPack"){
+              const pid  = ev.args.playerId?.toString?.() ?? ev.args[2]?.toString?.() ?? "?";
+              const tier = Number(ev.args.rolledTier ?? ev.args[3] ?? selectedPack);
+              showToast(`Pack opened! Player #${pid} • ${["PRO","EPIC","LEGENDARY"][tier]}`, true);
+              bumpOwned(1);
+              parsedOne = true;
+              break;
+            }
+          }catch{}
+        }
+      }catch{}
+
+      // If no custom event, fall back to ERC1155 mints
+      if(!parsedOne){
+        try{
+          const erc1155 = new ethers.Interface(ERC1155_MIN_ABI);
+          let minted = 0;
+          for(const log of rcpt.logs){
+            if((log.address||"").toLowerCase() !== NFT_ADDR.toLowerCase()) continue;
+            let ev; try{ ev = erc1155.parseLog(log); }catch{ continue; }
+            if(ev?.name === "TransferSingle"){
+              const to  = ev.args[2];
+              const qty = Number(ev.args[4] ?? 0);
+              if (to && to.toLowerCase() === (await signer.getAddress()).toLowerCase()) minted += qty;
+            }
+          }
+          if(minted>0){
+            bumpOwned(minted);
+            showToast(`Pack opened! ${minted} card${minted>1?'s':''} minted`, true);
+            parsedOne = true;
+          }
+        }catch{}
+      }
+
+      statusLine.textContent = parsedOne ? "Success!" : "Opened (no parseable events).";
+    }catch(err){
+      console.error(err);
+      statusLine.textContent = err?.shortMessage || err?.message || "Transaction failed.";
+      showToast(statusLine.textContent, false);
+    }finally{
+      buyBtn.textContent = "Buy Now";
+      buyBtn.style.pointerEvents = "";
+      buyBtn.style.opacity = "1";
+    }
+  });
+
+  // default show price on load if wallet exists
+  if (window.ethereum){
+    showSelectedPrice().catch(()=>{});
+    window.ethereum.on?.("accountsChanged", ()=>{ cachedPrices=null; showSelectedPrice(); });
+    window.ethereum.on?.("chainChanged",   ()=>{ cachedPrices=null; showSelectedPrice(); });
+  }
+</script>
+</body>
+</html>
